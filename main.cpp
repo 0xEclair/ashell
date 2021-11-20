@@ -16,6 +16,7 @@ namespace as {
         return buffer;
     };
 
+    // TODO: std::string_view version
     auto split = [](auto&& input) {
         std::regex rgx(R"(\s+)");
         std::sregex_token_iterator iter(input.begin(),
@@ -32,14 +33,12 @@ namespace as {
     };
 
     auto launch = [](auto&& args){
-        pid_t pid;
-        pid = fork();
-
+        pid_t pid = fork();
         if(pid == 0) {
             if(execvp(args[0],&args[0]) == -1) {
                 perror("as");
+                exit(EXIT_FAILURE);
             }
-            exit(EXIT_FAILURE);
         }
         else {
             int status;
@@ -51,6 +50,7 @@ namespace as {
     };
 
     auto execute = [](auto&& params) {
+        // TODO
         std::vector<char*> args(params.size(), nullptr);
         for(auto i = 0; i < params.size(); ++i) {
             args[i] = params[i].data();
@@ -58,21 +58,14 @@ namespace as {
         if(params[0].empty()) {
             return 1;
         }
+        // TODO: Perhaps i won't to do "as::cmd::help".
         for(; params[0] == "cd";) {
             return cmd::cd(args);
         }
         return launch(args);
     };
     auto loop() {
-        std::vector<std::string> args;
-        int status;
-
-        do {
-            printf("> ");
-            auto line = read_line();
-            args = split(line);
-            status = execute(args);
-        } while(status);
+        while(printf("> "),execute(split(read_line())));
     }
 }
 
