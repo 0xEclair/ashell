@@ -16,6 +16,8 @@ namespace as::cmd {
     };
     auto help = [](auto&& args){
         //TODO
+        printf("TODO: help\n");
+        return 0;
     };
     auto exit = [](auto&& args){
         return 0;

@@ -49,6 +49,17 @@ namespace as {
         return 1;
     };
 
+    constexpr auto hash2compare = [](auto&& key, int h = 0){
+        constexpr auto hash = [](auto&& key, int h, auto&& self){
+            // key is a string.
+            if(h == key.size()) {
+                return 53;
+            }
+            return (self(key, h+1, self)*33) ^ key[h];
+        };
+        return hash(key,h,hash);
+    };
+
     auto execute = [](auto&& params) {
         // TODO
         std::vector<char*> args(params.size(), nullptr);
@@ -62,6 +73,17 @@ namespace as {
         for(; params[0] == "cd";) {
             return cmd::cd(args);
         }
+        switch (hash2compare(params[0])) {
+            case hash2compare(std::string_view("cd")): {
+                return cmd::cd(args);
+            }
+            case hash2compare(std::string_view("help")): {
+                return cmd::help(args);
+            }
+            case hash2compare(std::string_view("exit")): {
+                return cmd::exit(args);
+            }
+        }
         return launch(args);
     };
     auto loop() {
@@ -70,6 +92,7 @@ namespace as {
 }
 
 auto main() -> int {
+    //as::hash2compare(std::string("hash2compare"));
     using namespace as;
     loop();
     return 1;
